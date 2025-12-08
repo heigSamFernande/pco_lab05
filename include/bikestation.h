@@ -6,6 +6,9 @@
 #include <array>
 #include "bike.h"
 
+#include <pcosynchro/pcomutex.h>
+#include <pcosynchro/pcoconditionvariable.h>
+
 /**
  * @brief Thread-safe bike station storing bikes by type with a limited capacity.
  *
@@ -44,7 +47,7 @@ public:
      *
      * @param _bike Pointer to the bike to put into the station. Must not be null.
      */
-    void putBike(Bike *_bike);
+    void putBike(Bike *_bike); // Pour une personne
 
     /**
      * @brief Retrieves one bike of the requested type from the station.
@@ -55,7 +58,7 @@ public:
      * @param _bikeType Requested bike type index (0..Bike::nbBikeTypes-1).
      * @return Pointer to the retrieved bike, or nullptr if the station is ending.
      */
-    Bike* getBike(size_t _bikeType);
+    Bike* getBike(size_t _bikeType); // Pour une personne
 
     /**
      * @brief Adds several bikes to the station at once.
@@ -66,7 +69,7 @@ public:
      * @param _bikesToAdd Vector of bike pointers to insert.
      * @return Vector containing the bikes that could not be inserted.
      */
-    std::vector<Bike*> addBikes(std::vector<Bike*> _bikesToAdd);
+    std::vector<Bike*> addBikes(std::vector<Bike*> _bikesToAdd); // Pour le van
 
     /**
      * @brief Retrieves up to a given number of bikes from the station.
@@ -77,7 +80,7 @@ public:
      * @param _nbBikes Maximum number of bikes to retrieve.
      * @return Vector containing the bikes actually retrieved (may be fewer).
      */
-    std::vector<Bike*> getBikes(size_t _nbBikes);
+    std::vector<Bike*> getBikes(size_t _nbBikes); // Pour le van
 
     /**
      * @brief Counts the bikes of a specific type currently stored.
@@ -114,6 +117,28 @@ private:
      * @brief Maximum number of bikes that can be stored in this station.
      */
     const size_t capacity;
+
+    /**
+     * @brief Stockage des vélos par type, utilisant une deque pour du FIFO pour chaque type.
+     */
+    std::array<std::deque<Bike*>, Bike::nbBikeTypes> storage;
+
+
+    // SYNCHRONISATION
+
+    PcoMutex mutex;
+
+    /**
+     * @brief Variables de condition pour les vélos de chaque type.
+     * Un thread attend ici si le type de vélo souhaité n'est pas disponible.
+     */
+    std::array<PcoConditionVariable, Bike::nbBikeTypes> bikes_of_type_available;
+
+    /**
+     * @brief Variable de condition pour les places disponibles.
+     * Un thread attend ici si la station est pleine.
+     */
+    PcoConditionVariable slots_available;
 };
 
 #endif // BIKESTATION_H
