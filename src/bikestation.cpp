@@ -1,3 +1,13 @@
+/* Lab05 - PCO
+ * Date : 26.11.2025
+ * Auteurs : Samuel Fernandez - Khelfi Amine
+ */
+
+/*  Fichier : bikestation.cpp
+ *
+ *  Cette classe représente ...
+ */
+
 #include "bikestation.h"
 #include <pcosynchro/pcomutex.h>
 
@@ -12,10 +22,22 @@ void BikeStation::putBike(Bike* _bike) {
 
     mutex.lock();
 
+    if (endSimulation)
+    {
+        mutex.unlock();
+        return;
+    }
+
     // While car moniteur Mesa. Si aucun slot de libre
-    while (nbBikes() >= capacity)
+    while (nbBikes() >= capacity && !endSimulation)
     {
         slots_available.wait(&mutex);
+    }
+
+    if (endSimulation)
+    {
+        mutex.unlock();
+        return;
     }
 
     // Déposer vélo
@@ -32,7 +54,7 @@ Bike* BikeStation::getBike(size_t _bikeType) {
     mutex.lock();
 
     // Si vélo souhaité pas dispo
-    while (storage[_bikeType].empty())
+    while (storage[_bikeType].empty() && !endSimulation)
     {
         bikes_of_type_available[_bikeType].wait(&mutex);
     }
@@ -53,6 +75,13 @@ std::vector<Bike*> BikeStation::addBikes(std::vector<Bike*> _bikesToAdd) {
 
     mutex.lock();
     std::vector<Bike*> rejectedBikes;
+
+    // Si la station est en cours d'arrêt, on rejette tous les vélos
+    if (endSimulation)
+    {
+        mutex.unlock();
+        return _bikesToAdd;
+    }
 
     for (Bike* bike : _bikesToAdd)
     {
@@ -105,13 +134,26 @@ std::vector<Bike*> BikeStation::getBikes(size_t _nbBikes) {
 }
 
 size_t BikeStation::countBikesOfType(size_t type) const {
-    // TODO: implement this method
-    return 0;
+
+    if (type >= Bike::nbBikeTypes)
+        return -1;
+
+    return storage[type].size();
 }
 
+// Pas besoin de lock, utilisé que dans un contexte ou le mutex est déjà lock
 size_t BikeStation::nbBikes() {
-    // TODO: implement this method
-    return 0;
+
+    size_t totalBikes = 0;
+
+    // Récupération du nb d'éléments pour chaque type
+    for (size_t type = 0; type < Bike::nbBikeTypes; ++type)
+    {
+        totalBikes += storage[type].size();
+    }
+
+
+    return totalBikes;
 }
 
 size_t BikeStation::nbSlots() {
@@ -119,5 +161,17 @@ size_t BikeStation::nbSlots() {
 }
 
 void BikeStation::ending() {
-   // TODO: implement this method
+    mutex.lock();
+
+    endSimulation = true;
+
+    // Réveiller tous les threads en attente
+    for (size_t type = 0; type < Bike::nbBikeTypes; ++type)
+    {
+        bikes_of_type_available[type].notifyAll();
+    }
+
+    slots_available.notifyAll();
+
+    mutex.unlock();
 }

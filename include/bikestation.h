@@ -1,3 +1,13 @@
+/* Lab05 - PCO
+ * Date : 26.11.2025
+ * Auteurs : Samuel Fernandez - Khelfi Amine
+ */
+
+/*  Fichier : bikestation.h
+ *
+ *  Cette classe représente ...
+ */
+
 #ifndef BIKESTATION_H
 #define BIKESTATION_H
 
@@ -122,6 +132,11 @@ private:
      * @brief Stockage des vélos par type, utilisant une deque pour du FIFO pour chaque type.
      */
     std::array<std::deque<Bike*>, Bike::nbBikeTypes> storage;
+
+    /**
+     * @brief Flag indiquant l'arrêt de la simulation
+     */
+    bool endSimulation = false;
 
 
     // SYNCHRONISATION
