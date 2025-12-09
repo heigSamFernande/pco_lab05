@@ -25,7 +25,17 @@ std::vector<std::unique_ptr<PcoThread>>* globalThreads = nullptr;
 
 // Should stop all threads and release waiting ones
 void stopSimulation() {
-    // TODO: implement this function
+    // Signaler l'arrêt à toutes les BikeStations pour réveiller tous les threads bloqués
+    if (globalStations)
+        for (size_t i = 0; i < NB_SITES_TOTAL; ++i)
+            if ((*globalStations)[i])
+                (*globalStations)[i]->ending();
+
+    // Demander l'arrêt à tous les threads
+    if (globalThreads)
+        for (auto& thread : *globalThreads)
+            if (thread)
+                thread->requestStop();
 }
 
 
@@ -40,7 +50,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (NB_BIKES < NBSITES * (BORNES - 2) + 3) {
-        throw std::runtime_error("Not enough bikes to initialize the stations and the depot"); 
+        throw std::runtime_error("Not enough bikes to initialize the stations and the depot");
     }
 
     QApplication a(argc, argv);
