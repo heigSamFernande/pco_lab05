@@ -1,11 +1,13 @@
 /* Lab05 - PCO
- * Date : 26.11.2025
+ * Date : 09.12.2025
  * Auteurs : Samuel Fernandez - Khelfi Amine
  */
 
-/*  Fichier : bikestation.h
- *
- *  Cette classe représente ...
+/* Fichier : bikestation.h
+ * Cette classe représente une station de vélos gérant un stock de vélos de différents types avec une capacité limitée.
+ * Elle utilise un mutex et des variables de condition (slots_available et bikes_of_type_available)
+ * pour la synchronisation des accès aux ressources partagées (dépôt et retrait de vélos) par différentes entités
+ * (utilisateurs, van de maintenance).
  */
 
 #ifndef BIKESTATION_H

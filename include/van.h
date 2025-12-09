@@ -1,3 +1,15 @@
+/* Lab05 - PCO
+ * Date : 09.12.2025
+ * Auteurs : Samuel Fernandez - Khelfi Amine
+ */
+
+/* Fichier : van.h
+ * Cette classe représente le véhicule de maintenance (van) chargé du rééquilibrage des vélos.
+ * Il exécute une boucle continue de tâches : charger des vélos au dépôt, visiter les stations (sites) pour déposer
+ * les vélos manquants ou retirer les excédentaires, puis retourner au dépôt pour vider son chargement restant.
+ * L'objectif est de maintenir un niveau de stock adéquat dans toutes les stations.
+ */
+
 #ifndef VAN_H
 #define VAN_H
 

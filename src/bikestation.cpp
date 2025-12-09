@@ -1,11 +1,13 @@
 /* Lab05 - PCO
- * Date : 26.11.2025
+ * Date : 09.12.2025
  * Auteurs : Samuel Fernandez - Khelfi Amine
  */
 
-/*  Fichier : bikestation.cpp
- *
- *  Cette classe représente ...
+/* Fichier : bikestation.cpp
+ * Cette classe représente une station de vélos gérant un stock de vélos de différents types avec une capacité limitée.
+ * Elle utilise un mutex et des variables de condition (slots_available et bikes_of_type_available)
+ * pour la synchronisation des accès aux ressources partagées (dépôt et retrait de vélos) par différentes entités
+ * (utilisateurs, van de maintenance).
  */
 
 #include "bikestation.h"
@@ -59,6 +61,12 @@ Bike* BikeStation::getBike(size_t _bikeType) {
         bikes_of_type_available[_bikeType].wait(&mutex);
     }
 
+    if (endSimulation)
+    {
+        mutex.unlock();
+        return nullptr;
+    }
+
     // Récupération vélo
     Bike* bike = storage[_bikeType].front();
     storage[_bikeType].pop_front();
@@ -90,7 +98,7 @@ std::vector<Bike*> BikeStation::addBikes(std::vector<Bike*> _bikesToAdd) {
         {
             size_t type = bike->bikeType;
             storage[type].push_back(bike);
-            bikes_of_type_available[type].notifyOne();
+            bikes_of_type_available[type].notifyAll();
         }
         else
         {

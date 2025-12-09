@@ -1,3 +1,16 @@
+/* Lab05 - PCO
+ * Date : 09.12.2025
+ * Auteurs : Samuel Fernandez - Khelfi Amine
+ */
+
+/* Fichier : person.h
+ * Cette classe représente une personne simulant l'utilisation du système de partage de vélos.
+ * Elle effectue des boucles continues de trajets : prendre un vélo sur un site,
+ * rouler vers une destination, déposer le vélo, marcher vers un autre site, et prendre un vélo pour rentrer
+ * à sa station de départ (domicile).
+ * Elle interagit avec les stations de vélos (BikeStation).
+ */
+
 #include "person.h"
 #include "bike.h"
 #include <random>
