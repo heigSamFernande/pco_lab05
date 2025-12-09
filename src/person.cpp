@@ -25,28 +25,56 @@ void Person::setInterface(BikingInterface* _binkingInterface) {
     binkingInterface = _binkingInterface;
 }
 
-
 void Person::run() {
-    // TODO: implement this method
+    while (true) {
+        // Attendre qu'un vélo disponible et le prendre
+        Bike* bike = takeBikeFromSite(currentSite);
+
+        // Si nullptr est retourné -> Simulation terminée
+        if (bike == nullptr)
+            break;
+
+        // Choisir un autre site j != i
+        unsigned int destinationSite = chooseOtherSite(currentSite);
+
+        // Aller au site j avec le vélo
+        bikeTo(destinationSite, bike);
+
+        // Attendre qu'une borne du site devienne libre et libérer son vélo
+        depositBikeAtSite(destinationSite, bike);
+
+        // Aller à pied à un autre site k
+        unsigned int nextSite = chooseOtherSite(currentSite);
+        walkTo(nextSite);
+    }
 }
 
 Bike* Person::takeBikeFromSite(unsigned int _site) {
-    Bike * bike = nullptr; // just to silence compiler warnings
-    // TODO: implement this method
 
-    if (binkingInterface) {
+    Bike* bike = stations[_site]->getBike(preferredType);
+
+    // Si bike est nullptr -> Ffin simulation
+    if (bike == nullptr)
+        return nullptr;
+
+    // Mise à jour de l'interface graphique
+    if (binkingInterface)
         binkingInterface->setBikes(_site, stations[_site]->nbBikes());
-    }
 
     return bike;
 }
 
 void Person::depositBikeAtSite(unsigned int _site, Bike* _bike) {
-    // TODO: implement this method
+    // Vérification de sécurité
+    if (_bike == nullptr)
+        return;
 
-    if (binkingInterface) {
+    // Déposer le vélo à la station
+    stations[_site]->putBike(_bike);
+
+    // Mise à jour de l'interface graphique
+    if (binkingInterface)
         binkingInterface->setBikes(_site, stations[_site]->nbBikes());
-    }
 }
 
 void Person::bikeTo(unsigned int _dest, Bike* _bike) {
