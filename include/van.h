@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <array>
+#include <pcosynchro/pcothread.h>
 #include "config.h"
 #include "bikestation.h"
 #include "bikinginterface.h"
